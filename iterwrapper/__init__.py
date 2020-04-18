@@ -2,4 +2,4 @@
 
 __version__ = "0.1.0"
 
-from .iters import IterWrapper
+from .wrapper import IterWrapper

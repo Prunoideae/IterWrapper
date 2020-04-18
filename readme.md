@@ -31,7 +31,7 @@ l = sum(c)
 Another one:
 
 ```python
-from iters.iters import IterWrapper as iw
+from iterwrapper.iterwrapper import IterWrapper as iw
 l = (
     iw(range(0,10))
     .map(lambda x: x+1)

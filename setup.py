@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name="iterwrapper-Prunoideae",
+    name="iterwrapper",
     version="0.1.0",
     author="Prunoideae",
     author_email="a455167189@163.com",
