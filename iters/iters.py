@@ -1,4 +1,4 @@
-from collections import Iterable
+from collections import Iterable as _Iterable
 
 
 class IterWrapper:
@@ -47,7 +47,7 @@ class IterWrapper:
 
     Notice that dict() is not a sliceable object,
     so Wrapper converts the slicing to `iter.skip(start).step(step).take(stop)`,
-    it means that the [1:2:3] will skip the first 1 item, and take the two item
+    it means that the [1:2:3] will skip the first 1 item, and take the 2 items
     remained in the generator by step 3.
 
 
@@ -78,7 +78,7 @@ class IterWrapper:
 
     def __init__(self, it):
         super().__init__()
-        if not isinstance(it, Iterable):
+        if not isinstance(it, _Iterable):
             raise TypeError
 
         self.__iterable__ = it
@@ -173,7 +173,7 @@ class IterWrapper:
 
         def closure():
             for i in self:
-                if isinstance(i, Iterable):
+                if isinstance(i, _Iterable):
                     for j in i:
                         yield j
                 else:
@@ -315,7 +315,8 @@ class IterWrapper:
 
     def repeat(self, t):
         """
-        Repeat the wrapped iterator for given times
+        Repeat the wrapped iterator for given times, notice that it is
+        exhaustive.
 
         Parameters
         ----------
