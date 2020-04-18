@@ -8,7 +8,8 @@ l = (
     .take(2)
     .mutate(list)
     .repeat(3)
-    .collect(list)
+    .map(str)
+    .collect(lambda x: ".".join(x))
 )
 
 print(l)

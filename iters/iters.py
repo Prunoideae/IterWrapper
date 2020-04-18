@@ -140,7 +140,7 @@ class IterWrapper:
         ```
         """
 
-        return IterWrapper(map(f, self))
+        return IterWrapper(map(f, self.__iterable__))
 
     def filter(self, f):
         """
@@ -157,7 +157,7 @@ class IterWrapper:
         [0, 2, 4, 6, 8]
         ```
         """
-        return IterWrapper(filter(f, self))
+        return IterWrapper(filter(f, self.__iterable__))
 
     def flat(self):
         """
@@ -172,7 +172,7 @@ class IterWrapper:
         """
 
         def closure():
-            for i in self:
+            for i in self.__iterable__:
                 if isinstance(i, _Iterable):
                     for j in i:
                         yield j
@@ -201,7 +201,7 @@ class IterWrapper:
             return self
 
         def closure():
-            for idx, i in enumerate(self):
+            for idx, i in enumerate(self.__iterable__):
                 if idx + 1 > c:
                     break
                 yield i
@@ -227,7 +227,7 @@ class IterWrapper:
             return self
 
         def closure():
-            for idx, i in enumerate(self):
+            for idx, i in enumerate(self.__iterable__):
                 if idx >= c:
                     yield i
 
@@ -252,7 +252,7 @@ class IterWrapper:
             return self
 
         def closure():
-            for idx, i in enumerate(self):
+            for idx, i in enumerate(self.__iterable__):
                 if idx % s == 0:
                     yield i
 
@@ -283,7 +283,7 @@ class IterWrapper:
         ```
         """
 
-        return IterWrapper(t(self, *args, **kwargs))
+        return IterWrapper(t(self.__iterable__, *args, **kwargs))
 
     def chain(self, it, before=False):
         """
@@ -306,9 +306,9 @@ class IterWrapper:
         def closure():
             if before:
                 yield from it
-                yield from self
+                yield from self.__iterable__
             else:
-                yield from self
+                yield from self.__iterable__
                 yield from it
 
         return IterWrapper(closure())
@@ -332,7 +332,7 @@ class IterWrapper:
 
         def closure():
             for _ in range(t):
-                yield from self
+                yield from self.__iterable__
 
         return IterWrapper(closure())
 
@@ -356,7 +356,7 @@ class IterWrapper:
         ```
         """
         r = d
-        for i in self:
+        for i in self.__iterable__:
             r = c(r, i)
         return r
 
@@ -394,7 +394,7 @@ class IterWrapper:
         [None, None]
         ```
         """
-        return t(self)
+        return t(self.__iterable__)
 
     def pipe(self, f):
         """
@@ -416,7 +416,7 @@ class IterWrapper:
         1
         ```
         """
-        for i in self:
+        for i in self.__iterable__:
             f(i)
 
     def apply(self, m, *args, **kwargs):
@@ -460,7 +460,7 @@ class IterWrapper:
         2   
         ```
         """
-        for i in self:
+        for i in self.__iterable__:
             pass
 
     def count(self, f=None):
@@ -506,7 +506,7 @@ class IterWrapper:
         False
         ```
         """
-        for i in self:
+        for i in self.__iterable__:
             if i == item:
                 return True
         return False
@@ -524,6 +524,6 @@ class IterWrapper:
         ```
         """
         try:
-            return IterWrapper(self[::-1])
+            return IterWrapper(self.__iterable__[::-1])
         except:
             return self.mutate(list)[::-1]
