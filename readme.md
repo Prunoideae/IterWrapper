@@ -37,7 +37,7 @@ l = (
     .map(lambda x: x+1)
     .filter(lambda x: x%2==0)
     .map(str)
-    .collect(lambda x: ', '.join(x))
+    .collect(', '.join)
 )
 
 print(l) # "2, 4, 6, 8, 10"
