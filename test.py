@@ -1,4 +1,5 @@
-from iters.iters import IterWrapper as iw
+from iterwrapper import IterWrapper as iw
+from iterwrapper.misc import *
 
 l = (
     iw(range(0, 10))

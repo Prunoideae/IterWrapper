@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="iterwrapper",
-    version="0.1.0",
+    version="0.1.1",
     author="Prunoideae",
     author_email="a455167189@163.com",
     description="A wrapper for FP style iterator manipulation",

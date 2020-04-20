@@ -5,7 +5,7 @@ This is a wrapper for python iterators to give it a style like those in Rust amo
 A example for this is something like :
 
 ```python
-from iters.iters import IterWrapper as iw
+from iterwrapper import IterWrapper as iw
 l = (
     iw(range(0,10))
     .map(lambda x:x+1)
@@ -31,7 +31,7 @@ l = sum(c)
 Another one:
 
 ```python
-from iterwrapper.iterwrapper import IterWrapper as iw
+from iterwrapper import IterWrapper as iw
 l = (
     iw(range(0,10))
     .map(lambda x: x+1)

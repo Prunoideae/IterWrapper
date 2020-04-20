@@ -142,6 +142,32 @@ class IterWrapper:
 
         return IterWrapper(map(f, self.__iterable__))
 
+    def foreach(self, f):
+        """
+        Call f(n) for each item in the iterator, use to mutate item in the iterables,
+        or do something while iterating without breaking the chain.
+
+        This method does NOT return the result of f(), it returns n.
+
+        Parameters
+        ----------
+        f : callable to call
+
+        Examples
+        --------
+        ```python
+        >>> IterWrapper([[1,2,3],[1,2],[1]]).foreach(list.pop).collect(list)
+        [[1, 2], [1], []]
+        ```
+        """
+
+        def closure():
+            for i in self.__iterable__:
+                f(i)
+                yield i
+
+        return IterWrapper(closure())
+
     def filter(self, f):
         """
         Filter the iterator by f(i). a wrapped version of the built-in method filter()
@@ -316,7 +342,7 @@ class IterWrapper:
     def repeat(self, t):
         """
         Repeat the wrapped iterator for given times, notice that it is
-        exhaustive.
+        exhaustive, since some iterable can only be yield for 1 time.
 
         Parameters
         ----------
@@ -336,6 +362,89 @@ class IterWrapper:
 
         return IterWrapper(closure())
 
+    def chunk(self, n, t=tuple, d=None):
+        """
+        Return a generator of t(tuple) with size n default with d(None).
+        
+        Pipe a list of item with size n into the t, and returns the t(n).
+
+        Parameters
+        ----------
+        n : size of tuple
+
+        Examples
+        --------
+        ```python
+        >>> IterWrapper([1,2,3,4,5]).chunk(2).collect(list)
+        [(1,2), (3,4), (5,None)]
+        ```
+        """
+
+        def closure():
+            it = self.__iterable__.__iter__()
+            remained = True
+            while remained:
+                r = []
+                try:
+                    for _ in range(n):
+                        r.append(next(it))
+                except StopIteration:
+                    r += [d for _ in range(n - len(r))]
+                    remained = False
+                yield t(r)
+
+        return IterWrapper(closure())
+
+    def zip(self, *it):
+        """
+        Return a zipped iterator of iterables.
+        
+        A convinient wrapper of built-in function zip().
+        """
+
+        return IterWrapper(zip(self.__iterable__, *it))
+
+    def inf(self):
+        """
+        Make the generator always try to yield from the iterable.
+
+        The generator will stop if the iterable is exhausted and NOT recoverable.
+
+        Use with caution.
+
+        Example
+        -------
+        ```python
+        >>> IterWrapper([1,2,3]).inf().take(10).collect(list)
+        [1, 2, 3, 1, 2, 3, 1, 2, 3, 1]
+        >>> IterWrapper(range(10)).filter(lambda x : x%2==0).inf().take(100).collect(list)
+        [0, 2, 4, 6, 8] # The filter() was exhausted during the first iteration.
+        
+        >>> (IterWrapper(range(10))
+            .filter(lambda x : x%2==0)
+            .mutate(list)
+            .inf()
+            .take(10)
+            .collect(list)
+            )
+        [0, 2, 4, 6, 8, 0, 2, 4, 6, 8]
+        ```
+        """
+
+        def closure():
+            it = self.__iterable__.__iter__()
+            while True:
+                try:
+                    yield next(it)
+                except StopIteration:
+                    it = self.__iterable__.__iter__()
+                    try:
+                        yield next(it)
+                    except StopIteration:
+                        break
+
+        return IterWrapper(closure())
+
     def fold(self, c, d=None):
         """
         Iteratively calls the increment method by input `incremental variable`
@@ -344,7 +453,7 @@ class IterWrapper:
 
         Parameters
         ----------
-        c : the method to calculate the variable
+        c : the increment method
 
         d : the starting default value of the variable, defaulting to None.
 
