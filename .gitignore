@@ -4,3 +4,4 @@ token
 build/
 dist/
 iterwrapper.egg-info/
+.pytest_cache/

@@ -67,6 +67,8 @@ class IterWrapper:
     2
     3
     4
+    >>> ((i1 | str) >> ''.join).unwrap()
+    '123'
     >>> 1 in i1
     True
     >>> 4 in i1
@@ -95,7 +97,8 @@ class IterWrapper:
                 return IterWrapper(self.__iterable__[index])
             except:
                 if index.start < 0 or index.step < 1 or index.stop < 0:
-                    raise ValueError("Unsupported slicing conversion for iterable")
+                    raise ValueError(
+                        "Unsupported slicing conversion for iterable")
                 return self.skip(index.start).step(index.step).take(index.stop)
         else:
             try:
@@ -120,6 +123,9 @@ class IterWrapper:
 
     def __or__(self, other):
         return self.map(other)
+
+    def __rshift__(self, other):
+        return self.mutate(other)
 
     def __contains__(self, obj):
         return self.contains(obj)
@@ -296,7 +302,7 @@ class IterWrapper:
         args : positional args for converter
 
         kwargs : keyword args
-        
+
         Examples
         --------
         ```python
@@ -314,7 +320,7 @@ class IterWrapper:
     def chain(self, it, before=False):
         """
         Chain the wrapper with iterable.
-        
+
         Parameters
         ----------
         it : the iterator to be chained
@@ -365,7 +371,7 @@ class IterWrapper:
     def chunk(self, n, t=tuple, d=None):
         """
         Return a generator of t(tuple) with size n default with d(None).
-        
+
         Pipe a list of item with size n into the t, and returns the t(n).
 
         Parameters
@@ -398,7 +404,7 @@ class IterWrapper:
     def zip(self, *it):
         """
         Return a zipped iterator of iterables.
-        
+
         A convinient wrapper of built-in function zip().
         """
 
@@ -424,7 +430,7 @@ class IterWrapper:
         [1, 2, 3, 1, 2, 3, 1, 2, 3, 1]
         >>> IterWrapper(range(10)).filter(lambda x : x%2==0).inf().take(100).collect(list)
         [0, 2, 4, 6, 8] # The filter() was exhausted during the first iteration.
-        
+
         >>> (IterWrapper(range(10))
             .filter(lambda x : x%2==0)
             .mutate(list)
