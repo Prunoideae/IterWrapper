@@ -404,6 +404,11 @@ class IterWrapper:
 
         return IterWrapper(zip(self.__iterable__, *it))
 
+    def lzip(self, *it):
+        """
+        """
+        pass
+
     def inf(self):
         """
         Make the generator always try to yield from the iterable.
