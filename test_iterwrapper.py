@@ -199,6 +199,20 @@ def test_rev():
     assert iw([1, 2, 3]).rev().unwrap() == [3, 2, 1]
 
 
+def test_window():
+    assert (iw([1, 2, 3, 4, 5])
+            .window(2)
+            .collect(list)
+            ) == [(1, 2), (2, 3), (3, 4), (4, 5)]
+
+
+def test_resize():
+    assert (iw([1, 2, 3])
+            .resize(5)
+            .collect(list)
+            ) == [1, 2, 3, None, None]
+
+
 def test_override():
 
     # iter

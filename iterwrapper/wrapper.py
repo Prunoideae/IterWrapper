@@ -240,6 +240,34 @@ class IterWrapper:
 
         return IterWrapper(closure())
 
+    def resize(self, c, d=None):
+        """
+        Resize the iterator to size C.
+
+        Similar to IterWrapper.take(), but this one will always
+        output d until the size is met.
+
+        Parameters
+        ----------
+        c : the size of iterator
+        d : the default value
+
+        Examples
+        --------
+        ```python
+        >>> IterWrapper([1,2,3]).resize(5, 0).collect(list)
+        [1, 2, 3, 0, 0]
+        ```
+        """
+        def closure():
+            i = 0
+            it = (self.__iterable__ + IterWrapper([d]).inf()).__iter__()
+
+            while i < c:
+                yield next(it)
+                i += 1
+        return IterWrapper(closure())
+
     def skip(self, c):
         """
         Discard the first c items in the iterator.
@@ -401,6 +429,23 @@ class IterWrapper:
                     remained = False
                 yield t(r)
 
+        return IterWrapper(closure())
+
+    def window(self, n, t=tuple):
+        def closure():
+            it = self.__iterable__.__iter__()
+            r = []
+            try:
+                r = [next(it) for x in range(n)]
+                yield t(r)
+
+                while True:
+                    r.pop(0)
+                    r.append(next(it))
+                    yield t(r)
+
+            except StopIteration:
+                pass
         return IterWrapper(closure())
 
     def zip(self, *it):
