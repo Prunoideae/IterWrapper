@@ -395,6 +395,8 @@ class IterWrapper:
                     for _ in range(n):
                         r.append(next(it))
                 except StopIteration:
+                    if not r:
+                        break
                     r += [d for _ in range(n - len(r))]
                     remained = False
                 yield t(r)
