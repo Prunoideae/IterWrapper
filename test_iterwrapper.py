@@ -1,5 +1,6 @@
 import pytest
 from iterwrapper import IterWrapper as iw
+import iterwrapper
 
 range_iw = iw(range(0, 9))
 
