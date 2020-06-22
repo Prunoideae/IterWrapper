@@ -1,4 +1,5 @@
 from collections import Iterable as _Iterable
+from collections import Callable as _Callable
 
 
 class IterWrapper:
@@ -76,6 +77,33 @@ class IterWrapper:
     >>> from iters import IterWrapper as iw
     iw([1,2]).collect(list)
     ```
+
+    Attributes
+    ----------
+    More than the attributes provided by IterWrapper, ones from the wrapped
+    iterable can also be called directly.
+
+    ```python
+    >>> i = IterWrapper([2,3,1])
+    >>> i.sort()
+    >>> i.unwrap()
+    [1,2,3]
+    ```
+
+    In addition, if such a attribute is Iterable, then IW will return the
+    wrapped one instead. If the attribute is callable, a closure will be
+    returned, judging if the callable returns a Iterable or not.
+
+    ```python
+    >>> IterWrapper({'a':1, 'b':2}).items().collect(list)
+    [('a', 1), ('b', 2)]
+    ```
+
+    Beware that the redirection is only applied to the currently wrapped
+    iterable, if you are trying to chain the redirection call in the chain,
+    please make sure that what you are calling at is really the one that
+    have the attribute.
+
     """
 
     def __init__(self, it):
@@ -90,6 +118,23 @@ class IterWrapper:
 
     def __len__(self):
         return len(self.__iterable__)
+
+    def __getattribute__(self, attr):
+        try:
+            return super().__getattribute__(attr)
+        except AttributeError:
+            att = self.__iterable__.__getattribute__(attr)
+            if isinstance(att, _Iterable):
+                return IterWrapper(att)
+            elif isinstance(att, _Callable):
+                def closure(*args, **kwargs):
+                    ret = att(*args, **kwargs)
+                    if isinstance(ret, _Iterable):
+                        return IterWrapper(ret)
+                    else:
+                        return ret
+                return closure
+            return att
 
     def __getitem__(self, index):
         if isinstance(index, slice):
@@ -617,6 +662,9 @@ class IterWrapper:
         Exhaust the iterator.
 
         No returns.
+
+        This is useful when the iteration itself has something to do, while the
+        result is ignored.
 
         Examples
         --------

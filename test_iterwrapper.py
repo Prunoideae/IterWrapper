@@ -213,6 +213,12 @@ def test_resize():
             ) == [1, 2, 3, None, None]
 
 
+def test_redirection():
+    assert (
+        iw({'a': 1, 'b': 2}).items().collect(list) == [('a', 1), ('b', 2)]
+    )
+
+
 def test_override():
 
     # iter
