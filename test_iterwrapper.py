@@ -216,7 +216,11 @@ def test_resize():
 
 def test_redirection():
     assert (
-        iw({'a': 1, 'b': 2}).items().collect(list) == [('a', 1), ('b', 2)]
+        iw({'a': 1, 'b': 2})
+        .items()
+        .mutate(list)
+        .apply(list.sort, key=lambda x: x[0])
+        .unwrap() == [('a', 1), ('b', 2)]
     )
 
 
