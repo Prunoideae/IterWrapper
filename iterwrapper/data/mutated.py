@@ -11,3 +11,6 @@ class grouped_dict(dict):
         if item not in self:
             s.__setitem__(item, [])
         s.__getitem__(item).append(value)
+
+    def additem(self, key, value):
+        self[key] = value
