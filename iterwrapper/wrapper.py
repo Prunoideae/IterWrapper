@@ -131,8 +131,6 @@ class IterWrapper:
                     ret = att(*args, **kwargs)
                     if isinstance(ret, _Iterable):
                         return IterWrapper(ret)
-                    elif ret is None:
-                        return self
                     else:
                         return ret
                 return closure
