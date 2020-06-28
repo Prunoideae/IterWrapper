@@ -170,6 +170,12 @@ def test_apply():
         .collect(list)
     ) == [1, 2, 3, 4]
 
+    assert (
+        iw((1, 3, 2, 4))
+        .apply(list.sort)
+        .collect(list)
+    ) == [1, 2, 3, 4]
+
 
 def test_exhaust():
     piped = []

@@ -14,3 +14,10 @@ class grouped_dict(dict):
 
     def additem(self, key, value):
         self[key] = value
+
+    @classmethod
+    def from_iter(clazz, iter):
+        r = clazz()
+        for i in iter:
+            r.additem(*i)
+        return r

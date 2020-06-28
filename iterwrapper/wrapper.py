@@ -131,6 +131,8 @@ class IterWrapper:
                     ret = att(*args, **kwargs)
                     if isinstance(ret, _Iterable):
                         return IterWrapper(ret)
+                    elif ret is None:
+                        return self
                     else:
                         return ret
                 return closure
@@ -367,6 +369,10 @@ class IterWrapper:
         """
         Mutate the iterable into another by casting to t(iter), 
         the mutated iterable is also wrapped.
+
+        Be aware that this iterable may be exhaustive if the t()
+        call is exhaustive, like list() which needs to add every
+        item from the iterable.
 
         Parameters
         ----------
@@ -640,6 +646,10 @@ class IterWrapper:
         This is used for chaining `IN-PLACE` methods like list.sort or something into the
         wrapper call.
 
+        In case of calling the iterable with a object method that does not fit with the 
+        iterable, this method will first try to cast the iterable into the required instance,
+        then the method is called. See examples for the usage.
+
         Parameters
         ----------
         m : the method applied to iterable
@@ -650,9 +660,22 @@ class IterWrapper:
 
         Examples
         --------
+        ```python
         >>> IterWrapper([3,1,4,2]).apply(list.sort,reverse=True).unwrap()
         [4, 3, 2, 1]
+
+        >>> IterWrapper(range(9,0,-1)).mutate(list).apply(list.sort).collect(print)
+        [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        # The mutate(list) is not necessary to call here, since list.sort implies
+        # the input should be a list. So apply should try to do the conversion like:
+        >>> IterWrapper(range(9,0,-1)).apply(list.sort).collect(print)
+        [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        ```
+
         """
+
+        if hasattr(m, '__objclass__') and not isinstance(self.__iterable__, m.__objclass__):
+            self.__iterable__ = m.__objclass__(self.__iterable__)
 
         m(self.__iterable__, *args, **kwargs)
         return self
