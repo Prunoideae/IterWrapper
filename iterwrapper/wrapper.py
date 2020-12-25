@@ -1,10 +1,11 @@
 from collections import Iterable as _Iterable
 from collections import Callable as _Callable
+from iterwrapper.misc import all_eq, tail_inf
 
 
 class IterWrapper:
     """
-    A wrapper for any Iterable, to describe a Functional Programming
+    A wrapper for any Iterable, to describe a Chain Call
     style for python to deal with Iterables.
 
     The wrapped iter is lazy, and evertying done through the wrapper
@@ -117,7 +118,7 @@ class IterWrapper:
         return self.__iterable__.__iter__()
 
     def __len__(self):
-        return len(self.__iterable__)
+        return self.count()
 
     def __getattribute__(self, attr):
         try:
@@ -174,6 +175,15 @@ class IterWrapper:
 
     def __contains__(self, obj):
         return self.contains(obj)
+
+    def __eq__(self, o: object) -> bool:
+        class Exhausted():
+            pass
+        for a, b in zip(tail_inf(self.__iterable__, Exhausted), tail_inf(o, Exhausted)):
+            if a != b:
+                return False
+            elif a == Exhausted and b == Exhausted:
+                return True
 
     def map(self, f):
         """
@@ -506,10 +516,25 @@ class IterWrapper:
 
         return IterWrapper(zip(self.__iterable__, *it))
 
-    def lzip(self, *it):
+    def lzip(self, *it, default=None):
         """
+        Return a zipped iterator of iterables.
+
+        Will yield until the longest iterable is exhausted, 
+        shorter ones are filled with default (None).
         """
-        pass
+
+        def closure(*it):
+            class Exhausted():
+                pass
+            iters = zip(tail_inf(self, Exhausted), *[tail_inf(x, Exhausted) for x in it])
+            for i in iters:
+                if all_eq(i, Exhausted):
+                    break
+                else:
+                    yield tuple(x if x != Exhausted else default for x in i)
+
+        return IterWrapper(closure(*it))
 
     def inf(self):
         """
@@ -562,7 +587,7 @@ class IterWrapper:
         ----------
         c : the increment method
 
-        d : the starting default value of the variable, defaulting to None.
+        d : the starting default value of the variable, defaulting to None (The first element in the iter).
 
         Examples
         --------
@@ -573,6 +598,9 @@ class IterWrapper:
         """
         r = d
         for i in self.__iterable__:
+            if r is None:
+                r = i
+                continue
             r = c(r, i)
         return r
 
@@ -696,7 +724,7 @@ class IterWrapper:
         2   
         ```
         """
-        for i in self.__iterable__:
+        for _ in self.__iterable__:
             pass
 
     def count(self, f=None):
@@ -727,7 +755,8 @@ class IterWrapper:
 
     def contains(self, item):
         """
-        Check if given item is in the iterable, this method is exhaustive.
+        Check if given item is in the iterable, this method is exhaustive
+        if iterable is not able to foresee a item is in its range.
 
         Parameters
         ----------
@@ -742,10 +771,13 @@ class IterWrapper:
         False
         ```
         """
-        for i in self.__iterable__:
-            if i == item:
-                return True
-        return False
+        try:
+            return item in self.__iterable__
+        except Exception:
+            for i in self.__iterable__:
+                if i == item:
+                    return True
+            return False
 
     def rev(self):
         """
