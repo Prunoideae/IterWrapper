@@ -1,5 +1,5 @@
-from collections import Iterable as _Iterable
-from collections import Callable as _Callable
+from collections.abc import Iterable as _Iterable
+from collections.abc import Callable as _Callable
 from iterwrapper.misc import all_eq, tail_inf
 
 
